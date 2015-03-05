@@ -29,7 +29,7 @@ class Settings extends CModel
 	{
 		return array(
 			'privacy'=>'Privacy',
-			'newsletter'=>'Newsletter',
+			'newsletter'=>'Newsletter Subscriptions',
 			'toc'=>'I agree to the Term of Service',
 		);
 	}

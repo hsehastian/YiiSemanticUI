@@ -28,6 +28,9 @@
 					<a href="/semantic/elements/button" class="item">
 						Button
 					</a>
+					<a href="/semantic/elements/input" class="item">
+						Input
+					</a>
 				</div>
 			</div>
 			<div class="item">

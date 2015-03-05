@@ -12,4 +12,20 @@ class CollectionsController extends Controller
 	{
 		$this->render('breadcrumb');
 	}
+
+	public function actionForm()
+	{
+		$model =new Form;
+		$settings =new Settings;
+		
+		if(isset($_POST['Form'])){
+			$model->attributes=$_POST['Form'];
+			$model->validate();
+		}
+
+		$this->render('form', array(
+			'model'=>$model,
+			'settings'=>$settings
+		));
+	}
 }

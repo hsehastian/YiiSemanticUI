@@ -12,4 +12,9 @@ class ElementsController extends Controller
 	{
 		$this->render('button');
 	}
+
+	public function actionInput()
+	{
+		$this->render('input');
+	}
 }

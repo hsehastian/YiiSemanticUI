@@ -774,7 +774,7 @@ class SUIHtml extends CHtml
      * @param string $value the input value.
      * @param array $htmlOptions additional HTML attributes.
      * @return string the generated input field.
-     * @see TbHtml::textInputField
+     * @see SUIHtml::textInputField
      */
     public static function textField($name, $value = '', $htmlOptions = array())
     {
@@ -782,41 +782,16 @@ class SUIHtml extends CHtml
     }
 
     /**
-     * Generates an input HTML tag.
-     * This method generates an input HTML tag based on the given input name and value.
-     * @param string $type the input type.
-     * @param string $name the input name.
-     * @param string $value the input value.
+     * Generates a text field input for a model attribute.
+     * @param CModel $model the data model.
+     * @param string $attribute the attribute.
      * @param array $htmlOptions additional HTML attributes.
-     * @return string the generated input tag.
+     * @return string the generated input field.
+     * @see SUIHtml::activeTextInputField
      */
-    protected static function textInputField($type, $name, $value, $htmlOptions)
+    public static function activeTextField($model, $attribute, $htmlOptions = array())
     {
-        CHtml::clientChange('change', $htmlOptions);
-
-        $htmlOptions = self::normalizeInputOptions($htmlOptions);
-
-        $addOnClasses = self::getAddOnClasses($htmlOptions);
-        $addOnOptions = self::popOption('addOnOptions', $htmlOptions, array());
-        $addOnOptions = self::addClassName($addOnClasses, $addOnOptions);
-
-        $prepend = self::popOption('prepend', $htmlOptions, '');
-        $prependOptions = self::popOption('prependOptions', $htmlOptions, array());
-        if (!empty($prepend))
-            $prepend = self::inputAddOn($prepend, $prependOptions);
-
-        $append = self::popOption('append', $htmlOptions, '');
-        $appendOptions = self::popOption('appendOptions', $htmlOptions, array());
-        if (!empty($append))
-            $append = self::inputAddOn($append, $appendOptions);
-
-        ob_start();
-        if (!empty($addOnClasses))
-            echo self::openTag('div', $addOnOptions);
-        echo $prepend . CHtml::inputField($type, $name, $value, $htmlOptions) . $append;
-        if (!empty($addOnClasses))
-            echo '</div>';
-        return ob_get_clean();
+        return self::activeTextInputField('text', $model, $attribute, $htmlOptions);
     }
 
     /**
@@ -950,12 +925,157 @@ class SUIHtml extends CHtml
         $labelOptions = self::popOption('labelOptions', $htmlOptions, array());
         $labelOptions = self::addClassName('label', $labelOptions);
 
+        $radioType = self::popOption('radioType', $htmlOptions, false);
         $radioOptions = self::popOption('radioOptions', $htmlOptions, array());
-        $radioOptions = self::addClassName('ui radio checkbox', $radioOptions);
+        $radioOptions = self::addClassName('ui checkbox', $radioOptions);
+        
+        $radioType !==false ? $radioOptions = self::addClassName($radioType, $radioOptions) : $radioOptions = self::addClassName('radio', $radioOptions);
         $radioButton = CHtml::radioButton($name, $checked, $htmlOptions);
 
         $fieldOptions = self::addClassName('field', array());
         return self::tag('div', $fieldOptions, self::tag('div', $radioOptions, $radioButton . self::tag('label', $labelOptions, $label)));
+    }
+
+    /**
+     * Generates a radio button list.
+     * @param string $name name of the radio button list.
+     * @param mixed $select selection of the radio buttons.
+     * @param array $data $data value-label pairs used to generate the radio button list.
+     * @param array $htmlOptions additional HTML attributes.
+     * @return string the generated list.
+     */
+    public static function radioButtonList($name, $select, $data, $htmlOptions = array())
+    {
+        $inline = self::popOption('inline', $htmlOptions, false);
+        $separator = self::popOption('separator', $htmlOptions, ' ');
+        $container = self::popOption('container', $htmlOptions);
+        $containerOptions = self::popOption('containerOptions', $htmlOptions, array());
+        $containerOptions = self::addClassName('fields', $containerOptions);
+
+        $labelOptions = self::popOption('labelOptions', $htmlOptions, array());
+
+        if ($inline){
+            $containerOptions = self::addClassName('inline', $containerOptions);
+        }else {
+            $containerOptions = self::addClassName('grouped', $containerOptions);
+        }
+
+        $items  = array();
+        $baseID = $containerOptions['id'] = self::popOption('baseID', $htmlOptions, CHtml::getIdByName($name));
+
+        $id = 0;
+        foreach ($data as $value => $label)
+        {
+            $checked = !strcmp($value, $select);
+            $htmlOptions['value'] = $value;
+            $htmlOptions['id'] = $baseID . '_' . $id++;
+            if ($inline)
+            {
+                $htmlOptions['label'] = $label;
+                $htmlOptions['labelOptions'] = $labelOptions;
+                $items[] = self::radioButton($name, $checked, $htmlOptions);
+            }
+            else
+            {
+                $htmlOptions['label'] = $label;
+                $htmlOptions['labelOptions'] = $labelOptions;
+                $items[] = self::radioButton($name, $checked, $htmlOptions);
+            }
+        }
+
+        $inputs = implode($separator, $items);
+        return !empty($container) ? self::tag($container, $containerOptions, $inputs) : $inputs;
+    }
+
+    /**
+     * Generates a radio button for a model attribute.
+     * @param CModel $model the data model.
+     * @param string $attribute the attribute.
+     * @param array $htmlOptions additional HTML attributes.
+     * @return string the generated radio button.
+     */
+    public static function activeRadioButton($model, $attribute, $htmlOptions = array())
+    {
+        $label = self::popOption('label', $htmlOptions, false);
+        if($label === false)
+            $label = $model->getAttributeLabel($attribute);
+        $labelOptions = self::popOption('labelOptions', $htmlOptions, array());
+        $labelOptions = self::addClassName('label', $labelOptions);
+        
+        $radioOptions = self::popOption('radioOptions', $htmlOptions, array());
+        $radioOptions = self::addClassName('ui radio checkbox', $radioOptions);
+        $radioButton = CHtml::activeRadioButton($model, $attribute, $htmlOptions);
+        
+        $fieldOptions = self::addClassName('field', array());
+        return self::tag('div', $fieldOptions, self::tag('div', $radioOptions, $radioButton . self::tag('label', $labelOptions, $label)));
+    }
+
+    /**
+     * Generates a radio button list for a model attribute.
+     * @param CModel $model the data model.
+     * @param string $attribute the attribute.
+     * @param array $data $data value-label pairs used to generate the radio button list.
+     * @param array $htmlOptions additional HTML attributes.
+     * @return string the generated list.
+     */
+    public static function activeRadioButtonList($model, $attribute, $data, $htmlOptions = array())
+    {
+        CHtml::resolveNameID($model, $attribute, $htmlOptions);
+        $selection = CHtml::resolveValue($model, $attribute);
+        if ($model->hasErrors($attribute))
+            CHtml::addErrorCss($htmlOptions);
+        $name = self::popOption('name', $htmlOptions);
+        $unCheck = self::popOption('uncheckValue', $htmlOptions, '');
+        $hiddenOptions = isset($htmlOptions['id']) ? array('id' => CHtml::ID_PREFIX . $htmlOptions['id']) : array('id' => false);
+        $hidden = $unCheck !== null ? CHtml::hiddenField($name, $unCheck, $hiddenOptions) : '';
+        return $hidden . self::radioButtonList($name, $selection, $data, $htmlOptions);
+    }
+
+    /**
+     * Generates an input HTML tag.
+     * This method generates an input HTML tag based on the given input name and value.
+     * @param string $type the input type.
+     * @param string $name the input name.
+     * @param string $value the input value.
+     * @param array $htmlOptions additional HTML attributes.
+     * @return string the generated input tag.
+     */
+    protected static function textInputField($type, $name, $value, $htmlOptions)
+    {
+        CHtml::clientChange('change', $htmlOptions);
+
+        $inputOptions = self::popOption('inputOptions', $htmlOptions, array());
+        $inputOptions = self::addClassName('ui input', $inputOptions);
+
+        ob_start();
+        echo self::openTag('div', $inputOptions);
+        echo CHtml::inputField($type, $name, $value, $htmlOptions);
+        echo self::closeTag('div');
+        return ob_get_clean();
+    }
+
+    /**
+     * Generates an input HTML tag  for a model attribute.
+     * This method generates an input HTML tag based on the given input name and value.
+     * @param string $type the input type.
+     * @param CModel $model the data model.
+     * @param string $attribute the attribute.
+     * @param array $htmlOptions additional HTML attributes.
+     * @return string the generated input tag.
+     */
+    protected static function activeTextInputField($type, $model, $attribute, $htmlOptions)
+    {
+        CHtml::resolveNameID($model, $attribute, $htmlOptions);
+        CHtml::clientChange('change', $htmlOptions);
+
+        $inputOptions = self::popOption('inputOptions', $htmlOptions, array());
+        $inputOptions = self::addClassName('ui input', $inputOptions);
+
+        ob_start();
+        echo self::openTag('div', $inputOptions);
+        echo CHtml::activeInputField($type, $model, $attribute, $htmlOptions);
+        echo self::closeTag('div');
+        return ob_get_clean();
     }
 
     /**

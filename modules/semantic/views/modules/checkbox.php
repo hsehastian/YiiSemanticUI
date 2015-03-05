@@ -120,13 +120,33 @@ $(document).ready(function(){
 		'enableAjaxValidation'=>false,
 	)); ?>
 	<div class="grouped fields">
-	<?php echo $form->checkboxListField($model, 'newsletter', array('widgetOptions'=>array('data'=>array(
-		0=>'Top Post This Week',
-		1=>'Hot Deals'
-	)))); ?>
+	<?php echo $form->checkboxListField($model, 'newsletter', 
+		array('widgetOptions'=>array(
+			'data'=>array(
+				0=>'Top Post This Week',
+				1=>'Hot Deals'
+			)
+		),
+		'fieldOptions'=>array(
+			'class'=>'two'
+		))); ?>
 	</div>
 	<div class="inline fields">
 	<?php echo $form->checkboxField($model, 'toc', array()); ?>
 	</div>
 	<?php $this->endWidget(); ?>
+
+	<!--radio button-->
+	<?php //echo SUIHtml::radioButtonList('Import Settings', 'y', array('y'=>'Yes','n'=>'No'), array('container'=>'div', 'inline'=>'inline')); ?>
+
+	<?php //echo SUIHtml::activeRadioButton($model, 'toc', array()); ?>
+
+	<?php
+	// echo SUIHtml::activeRadioButtonList($model, 'newsletter', array(
+	// 	0=>'Option one',
+	// 	1=>'Option two'
+	// ), array(
+	// 	'container'=>'div'
+	// )); 
+	?>
 </div>

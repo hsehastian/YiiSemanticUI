@@ -44,4 +44,10 @@ return array(
         'js' => array($this->minify ? 'checkbox.min.js' : 'checkbox.js'),
         'depends' => array('jquery', 'jquery.ui'),
     ),
+    'form' => array(
+        'baseUrl' => $this->getAssetsUrl() . '/semantic-ui/components',
+        'css' => array($this->minify ? 'form.min.css' : 'form.css'),
+        'js' => array($this->minify ? 'form.min.js' : 'form.js'),
+        'depends' => array('jquery', 'jquery.ui'),
+    ),
 );
